@@ -1,0 +1,32 @@
+{
+  "name": "dw-timer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "vminstall": "cnpm i --by=npm --no-bin-links"
+  },
+  "keywords": [
+    "log",
+    "nodejs",
+    "split"
+  ],
+  "files": [
+    "log-master.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hezedu/log-master.git"
+  },
+  "author": {
+    "name": "hezedu"
+  },
+  "dependencies": {
+    "sas": "0.1.19"
+  },
+  "license": "MIT",
+  "email": "hezedu@hotmail.com",
+  "description": "",
+  "bugs": {
+    "url": "https://github.com/hezedu/log-master/issues"
+  }
+}
