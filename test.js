@@ -1,8 +1,8 @@
-const Task = require('./timer');
+const Task = require('../timer');
 
 // test
 const date = new Date();
-new Task({
+let task = new Task({
   startTime: date.getHours + ':' + date.getMinutes + ':' + (date.getSeconds - 10),
   interval : 1000,
   infinity: true,
@@ -14,3 +14,7 @@ new Task({
     }, 2000)
   }
 });
+setTimeout(() => {
+  task.abort();
+  console.log('-------- 中止 ---------')
+}, 8000);
