@@ -5,8 +5,9 @@
 // --------- 开始时间 ---------
 // 间隔
 // 次数
-var startDate, startTime;
-const taskList = [];
+  // interval MAX 2147483648;
+  // https://blog.csdn.net/bookmoth/article/details/6336318
+const MAX_INTERVAL = 2147483648 - 1;
 
 function getDate(str) {
   const date = new Date();
@@ -33,15 +34,22 @@ function Task(conf){
   // interval 间隔 必选 毫秒
   // infinity bool   是否Infinity 无限循环 默认 false
   // start 必填 
+  this.name = conf.name;
   this.interval = conf.interval;
   this._timerIndex = null;
 
   const nowDate = new Date();
   const confDate = conf.startDate ? getDate(conf.startDate) : nowDate;
+  
   this.startTime = setHours(confDate, conf.startTime).getTime();
+
+  
   this.nowTime = nowDate.getTime();
   this.infinity = conf.infinity;
-
+  if(this.infinity && this.interval === undefined) {
+    throw new Error('timer conf infinity need interval');
+  }
+  
   if ( this.startTime < this.nowTime) {
     if (conf.infinity) {
       this.startTime = reGetTime(this.startTime, this.nowTime, this.interval);
@@ -53,32 +61,53 @@ function Task(conf){
   this._isEnd = false;
   this._start = conf.start;
   this._onEnd = conf.onEnd;
+  this.intervalTime = 0;
+  this.isSafeInterval = true;
+  
+  this.initInterValTime();
+
 
   this._autoStart();
 
 }
+Task.prototype.initInterValTime = function() {
+  this.intervalTime = this.startTime - this.nowTime;
+  if(this.intervalTime > MAX_INTERVAL) {
+    this.intervalTime = MAX_INTERVAL;
+    this.isSafeInterval = false;
+  } else {
+    this.isSafeInterval = true;
+  }
+}
 Task.prototype.reInitTime = function() {
   this.nowTime = Date.now();
   this.startTime = this.startTime + this.interval;
+  
   if(this.startTime < this.nowTime) {
     this.startTime = reGetTime(this.startTime, this.nowTime, this.interval);
   }
+  this.initInterValTime();
 }
 
 Task.prototype._autoStart = function() {
+
   this._timerIndex = setTimeout(() => {
+    if (!this.isSafeInterval) {
+      this.initInterValTime();
+      this._autoStart();
+      return;
+    }
     this._start(() => { // end callback
       if (this.infinity) {
         if(!this._isEnd) {
           this.reInitTime();
           this._autoStart();
         }
-
       } else {
         this._isEnd = true;
       }
     });
-  }, this.startTime - this.nowTime);
+  }, this.intervalTime);
 }
 Task.prototype.abort = function() {
   if(this._isEnd) {
