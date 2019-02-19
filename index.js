@@ -54,7 +54,7 @@ function Task(conf){
   this._start = conf.start;
   this._onEnd = conf.onEnd;
 
-  this.start();
+  this._autoStart();
 
 }
 Task.prototype.reInitTime = function() {
@@ -65,18 +65,27 @@ Task.prototype.reInitTime = function() {
   }
 }
 
-Task.prototype.start = function() {
+Task.prototype._autoStart = function() {
   this._timerIndex = setTimeout(() => {
     this._start(() => { // end callback
       if (this.infinity) {
-        this.reInitTime();
-        this.start();
+        if(!this._isEnd) {
+          this.reInitTime();
+          this._autoStart();
+        }
+
       } else {
         this._isEnd = true;
       }
     });
   }, this.startTime - this.nowTime);
 }
-
+Task.prototype.abort = function() {
+  if(this._isEnd) {
+    return;
+  }
+  this._isEnd = true;
+  clearTimeout(this._timerIndex);
+}
 
 module.exports = Task;
